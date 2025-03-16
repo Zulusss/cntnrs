@@ -14,11 +14,14 @@ namespace s21{
 
 template <class T, std::size_t N>
 
-class Array
+class array
 {
 
-        // public attribures
-    public:
+protected:
+        struct ArrayIterator;
+        struct ArrayConstIterator;
+      
+public:
         // member types
         using value_type = T;
         using reference = T &;
@@ -26,47 +29,89 @@ class Array
         using iterator = T *;
         using const_iterator = const T *;
         using size_type = size_t;
+        
+protected:
+        size_type m_size = N;
+        value_type arr[N];
 
-    public:
+public:
+// array Member functions
         // default constructor (simplified syntax for assigning values to attributes)
-        Array() : m_size(N) {};
+        array() : m_size(N) {};
         // initializer list constructor (allows creating lists with initializer lists, see main.cpp)
-        Array(std::initializer_list<value_type> const &items);
+        array(std::initializer_list<value_type> const &items);
         // copy constructor with simplified syntax
-        Array(const Array &v) {  for (size_type i = 0; i < m_size; ++i) {arr[i] = v.arr[i];}};
+        array(const array &a) {  for (size_type i = 0; i < m_size; ++i) {arr[i] = a.arr[i];}};
         // move constructor with simplified syntax
-        Array(Array &&v) noexcept : Array(v) {};
+        array(array &&a) noexcept : array(a) {};
      
 
         // destructor
-        ~Array() {};
+        ~array() {};
 
-        size_type size();
+        array& operator=(array&& other) noexcept;
+        array& operator=(const array& other);
 
-        value_type at(size_type i);
+// array Element access
+        reference at(size_type i);
+        reference operator[](size_type pos);
+        const_reference front();
+        const_reference back();
+        T* data();
 
-        void swap(Array& other);
-        Array& operator=(Array&& other) noexcept;
-        Array& operator=(const Array& other);
-
-        void Print();
+// array Iterators
         iterator begin();
         iterator end();
 
-        reference operator[](size_type pos);
-
+// array Capacity
         bool empty();
+        size_type size();
         size_type max_size();
 
-        const_reference front();
-        const_reference back();
+// array Modifiers
 
-        T* data();
+        void swap(array& other);
         void fill(const_reference value);
-    private:
-        size_type m_size = N;
-        value_type arr[N];
+//other
+        void Print();
 };
+
+template <typename T, std::size_t N>
+struct array<T, N>::ArrayIterator {
+ protected:
+  T* ptr_{nullptr};
+
+  ArrayIterator();
+  ArrayIterator(T* ptr) : ptr_(ptr) {}
+
+  reference operator*() { return *ptr_; }
+  ArrayIterator& operator++() {
+    ++ptr_;
+    return *this;
+  }
+
+  ArrayIterator& operator--() {
+    --ptr_;
+    return *this;
+  }
+
+  bool operator==(const ArrayIterator& other) const {
+    return ptr_ == other.ptr_;
+  }
+  bool operator!=(const ArrayIterator& other) const {
+    return ptr_ != other.ptr_;
+  }
+  // ptrdiff_t operator-(const VectorIterator& other) const;
+};
+
+template <typename T, std::size_t N>
+struct array<T, N>::ArrayConstIterator : public ArrayIterator {
+  ArrayConstIterator();
+  ArrayConstIterator(T* ptr) : ArrayIterator(ptr) {}
+
+  const_reference operator*() { return *ArrayIterator::ptr_; }
+};
+
 } //s21_namespace
 #endif
 

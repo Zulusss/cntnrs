@@ -1,13 +1,10 @@
 #include "testArray.h"
 
-/*
-IMPLEMENTATION FILE
-*/
 namespace s21{
 
 // initializer list constructor (allows creating lists with initializer lists, see main.cpp)
 template <typename T, size_t N>
-Array<T, N>::Array(std::initializer_list<value_type> const &items) : Array()
+array<T, N>::array(std::initializer_list<value_type> const &items) : array()
 {
     int i = 0;
     for (auto it = items.begin(); it != items.end(); it++)
@@ -15,9 +12,8 @@ Array<T, N>::Array(std::initializer_list<value_type> const &items) : Array()
 
 }
 
-
 template <typename T, size_t N>
-T Array<T, N>::at(size_type i)
+typename array<T, N>::reference array<T, N>::at(size_type i)
 {  
     if (i >= m_size || m_size == 0) {
         throw std::out_of_range("Index out of range");
@@ -26,13 +22,7 @@ T Array<T, N>::at(size_type i)
 }
 
 template <typename T, size_t N>
-inline typename Array<T, N>::size_type Array<T, N>::size()
-{
-    return m_size;
-}
-
-template <typename T, size_t N>
-Array<T, N>& Array<T, N>::operator=(Array&& other) noexcept {
+array<T, N>& array<T, N>::operator=(array&& other) noexcept {
   if (this == &other) return *this;
 
     for(size_t i = 0; i < other.size(); i++)
@@ -43,16 +33,15 @@ Array<T, N>& Array<T, N>::operator=(Array&& other) noexcept {
 
 // Copy assignment operator (deep copy)
 template <typename T, size_t N>
-Array<T, N>& Array<T, N>::operator=(const Array& other) {
+array<T, N>& array<T, N>::operator=(const array& other) {
     if (this != &other) {
         std::copy_n(other.arr, m_size, arr);
     }
     return *this;
 }
 
-
 template <typename T, size_t N>
-void Array<T, N>::Print(){
+void array<T, N>::Print(){
     for (size_t i = 0; i < this -> size(); i++) {
        std::cout << arr[i] << ' '; 
     }
@@ -60,7 +49,7 @@ void Array<T, N>::Print(){
 }
 
 template <typename T, size_t N>
-void Array<T, N>::swap(Array& other)
+void array<T, N>::swap(array& other)
 {
   value_type tmp;
   for (size_type i = 0; i < other.size(); ++i) {
@@ -70,65 +59,69 @@ void Array<T, N>::swap(Array& other)
   }
 }
 
-    // First element. iterator
+// First element. iterator
 template <typename T, size_t N>
-T * Array<T, N>::begin() { return arr; }
+T * array<T, N>::begin() { return arr; }
 
-  // One past the last element. iterator
+// One past the last element. iterator
 template <typename T, size_t N>
-T * Array<T, N>::end() { return begin() + size(); }
-
+T * array<T, N>::end() { return begin() + size(); }
 
 template <typename T, size_t N>
-T & Array<T, N>::operator[](size_type pos){
+typename array<T, N>::reference array<T, N>::operator[](size_type pos){
     return arr[pos];
 }
 
-
 template <typename T, size_t N>
-bool Array<T, N>::empty(){
+bool array<T, N>::empty(){
     bool res = true;
     if(this -> begin() != this -> end()) res = false;
     return res;
 }
 
 template <typename T, size_t N>
-size_t Array<T, N>::max_size(){
+inline typename array<T, N>::size_type array<T, N>::size()
+{
+    return m_size;
+}
+
+template <typename T, size_t N>
+typename array<T, N>::size_type array<T, N>::max_size(){
     return size();
 }
 
 template <typename T, size_t N>
-const T & Array<T, N>::front(){
+typename array<T, N>::const_reference array<T, N>::front(){
     return *begin();
 }
 
 template <typename T,  size_t N>
-const T & Array<T, N>::back(){
+typename array<T, N>::const_reference array<T, N>::back(){
     return *(begin() + size() - 1);
 }
 
 template <typename T, size_t N>
-T* Array<T, N>::data(){
+T* array<T, N>::data(){
     if(!this -> empty())
         return arr;
-    else return nullptr;//std::string = "empty"
+    else return nullptr;
 }
 
 template <typename T, size_t N>
-void Array<T, N>::fill(const_reference value){
+void array<T, N>::fill(const_reference value){
     for (size_type i = 0; i < m_size; ++i) {
         arr[i] = value;
   }    
 }
 
 // externalizing template instances for correct linking, feel free to find more information
-template class Array<int, 4>;
-template class Array<double, 4>;
-template class Array<std::string, 4>;
-template class Array<int, 5>;
-template class Array<double, 5>;
-template class Array<std::string, 5>;
-template class Array<int, 0>;
-template class Array<double, 0>;
-template class Array<std::string, 0>;
+template class array<int, 4>;
+template class array<double, 4>;
+template class array<std::string, 4>;
+template class array<int, 5>;
+template class array<double, 5>;
+template class array<std::string, 5>;
+template class array<int, 0>;
+template class array<double, 0>;
+template class array<std::string, 0>;
 } //s21_namespace
