@@ -891,71 +891,75 @@ size_t findIndex(My_Iterator pos) {
         other.linkin_park();
         Node* start_other = other.findmin(other.root);
 
-        std::cout << "first  " << start->data << " second  " << start_other->data << std::endl;
+        std::cout << " first  " << start->data << " second  " << start_other->data << std::endl;
+
+        size_t how_much_in_second = makeMergeGreatAgain(start, start_other);
         // std::pair<size_t,  Node*>
-        size_t how_much_nodes_will_be_merged = mergeOrNotMergeList(start, start_other);
+        // size_t how_much_nodes_will_be_merged = mergeOrNotMergeList(start, start_other);
         // root = listToBST(start, how_much+how_much_nodes_will_be_merged);
         // return;
 
-        std::cout << start->data << " head1 " << std::endl;
-        if(start_other) std::cout << start_other->data << " updated head2 " << std::endl;
-        else std::cout  << " no head2 " << std::endl;
-        Node* start_print = start;
-        while(start_print && start_print->next) {std::cout << start_print->data << " " << std::flush; start_print = start_print->next;}
-        if(start_print) std::cout << start_print->data << std::endl;
-        else std::cout << " no last in list1 " << std::endl;
-        std::cout << " list1 " <<std::endl;
-        while(start_print && start_print->prev) {std::cout << start_print->data << " " << std::flush; start_print = start_print->prev;}
-        if(start_print) std::cout << start_print->data << std::endl;
-        else std::cout << " no first in list1 awesome " << std::endl;
-        std::cout << " list1 reverse " <<std::endl;
+        // std::cout << start->data << " head1 " << std::endl;
+        // if(start_other) std::cout << start_other->data << " updated head2 " << std::endl;
+        // else std::cout  << " no head2 " << std::endl;
+        // Node* start_print = start;
+        // while(start_print && start_print->next) {std::cout << start_print->data << " " << std::flush; start_print = start_print->next;}
+        // if(start_print) std::cout << start_print->data << std::endl;
+        // else std::cout << " no last in list1 " << std::endl;
+        // std::cout << " list1 " <<std::endl;
+        // while(start_print && start_print->prev) {std::cout << start_print->data << " " << std::flush; start_print = start_print->prev;}
+        // if(start_print) std::cout << start_print->data << std::endl;
+        // else std::cout << " no first in list1 awesome " << std::endl;
+        // std::cout << " list1 reverse " <<std::endl;
         
-        Node* start_print2 = start_other;
-        if(start_print2)
-        std::cout << start_print2 -> data << " start_print2 " << std::endl;
-        else std::cout << " start_print2 is nullptr" << std::endl;
-        if(start_print2->next)
-        std::cout << start_print2->next -> data << " start_print2 next" << std::endl;
-        else std::cout << " start_print2 next is nullptr" << std::endl;
-        if(start_print2){
-            while(start_print2 && start_print2->next) {std::cout << start_print2->data << " " << std::flush; start_print2 = start_print2->next;}
+        // Node* start_print2 = start_other;
+        // if(start_print2)
+        // std::cout << start_print2 -> data << " start_print2 " << std::endl;
+        // else std::cout << " start_print2 is nullptr" << std::endl;
+        // if(start_print2->next)
+        // std::cout << start_print2->next -> data << " start_print2 next" << std::endl;
+        // else std::cout << " start_print2 next is nullptr" << std::endl;
+        // if(start_print2){
+        //     while(start_print2 && start_print2->next) {std::cout << start_print2->data << " " << std::flush; start_print2 = start_print2->next;}
             
-            // start_print = start_other_updated;
-        }
-        if(start_print2) std::cout << start_print2->data << std::endl;
-        else std::cout << " no last in list2 " << std::endl;
-        std::cout << " list2 " <<std::endl;
-        if(start_print2){
-            while(start_print2 && start_print2->prev) {std::cout << start_print2->data << " " << std::flush; start_print2 = start_print2->prev;}
+        //     // start_print = start_other_updated;
+        // }
+        // if(start_print2) std::cout << start_print2->data << std::endl;
+        // else std::cout << " no last in list2 " << std::endl;
+        // std::cout << " list2 " <<std::endl;
+        // if(start_print2){
+        //     while(start_print2 && start_print2->prev) {std::cout << start_print2->data << " " << std::flush; start_print2 = start_print2->prev;}
             
-            // start_print = start_other_updated;
-        }
-        if(start_print2) std::cout << start_print2->data << std::endl;
-        else std::cout << " no last in list2 awesome " << std::endl;
-        std::cout << " list2 reverse " <<std::endl;
-        start_print = nullptr;
-        start_print2 = nullptr;
+        //     // start_print = start_other_updated;
+        // }
+        // if(start_print2) std::cout << start_print2->data << std::endl;
+        // else std::cout << " no last in list2 awesome " << std::endl;
+        // std::cout << " list2 reverse " <<std::endl;
+        // start_print = nullptr;
+        // start_print2 = nullptr;
         // size_t how_much_nodes_will_be_merged = mergeLists(start, start_other);
-        if(how_much_nodes_will_be_merged) {
-            size_t total_nodes_in_first = how_much_nodes_will_be_merged + how_much;
-            // how_much_nodes_will_be_merged += how_much;
-            std::cout << total_nodes_in_first << " total nodes in the tree after merge " << std::endl;
-            size_t new_old_size2 = 0;
-            std::cout << how_much << " how_much " << other.how_much << " other.how_much " << std::endl;
-            if(total_nodes_in_first <= (how_much + other.how_much)){
-                new_old_size2 = how_much + other.how_much - total_nodes_in_first;
-                std::cout << new_old_size2 << " new_old_size2 " << std::endl;
-            }
-            how_much = total_nodes_in_first;
-            other.how_much = new_old_size2;
 
-            root = listToBST(start, total_nodes_in_first);
-            if(new_old_size2){
-                other.root = listToBST(start_other, new_old_size2);
+
+        // if(how_much_nodes_will_be_merged) {
+        //     size_t total_nodes_in_first = how_much_nodes_will_be_merged + how_much;
+        //     // how_much_nodes_will_be_merged += how_much;
+        //     std::cout << total_nodes_in_first << " total nodes in the tree after merge " << std::endl;
+        //     size_t new_old_size2 = 0;
+        //     std::cout << how_much << " how_much " << other.how_much << " other.how_much " << std::endl;
+        //     if(total_nodes_in_first <= (how_much + other.how_much)){
+        //         new_old_size2 = how_much + other.how_much - total_nodes_in_first;
+        //         std::cout << new_old_size2 << " new_old_size2 " << std::endl;
+        //     }
+        //     how_much = total_nodes_in_first;
+        //     other.how_much = new_old_size2;
+
+            root = listToBST(start, how_much + other.how_much - how_much_in_second);
+            if(how_much_in_second){
+                other.root = listToBST(start_other, how_much_in_second);
             } else other.root = nullptr;
             
         }
-    }
+    // }
 
     bool containsInList(Node* head, int value) {
     Node* current = head;
@@ -1375,6 +1379,8 @@ Node* listToBST(Node*& head, size_t n) {
 }
     
     size_t mergeOrNotMergeList(Node*& head1, Node*& head2){
+        printList(head1);
+        printList(head2);
         size_t count = 0;
         Node* current1 = head1;
         Node* current2 = head2;
@@ -1459,8 +1465,139 @@ Node* listToBST(Node*& head, size_t n) {
               }
                 newCurrent1 = newCurrent1->next;
           }
+          printList(head1);
+        //   printList(head2);
           return cnt;
         }
+
+        void printList(Node*& head){
+            Node* start = head;
+            std::cout << " list forward " << std::endl;
+            while(start) {std::cout << start->data << " " << std::flush; if(start->next) start = start->next; else break;}
+            std::cout <<  std::endl;
+            std::cout << " list backwards " << std::endl;
+            while(start) {std::cout << start->data << " " << std::flush; if(start->prev) start = start->prev; else break;}
+            std::cout <<  std::endl;
+        }
+
+    Node* makeList1(Node* tmp)
+    {
+        // Node* tmp = tmp1;
+        // static size_t count = 0;
+        // tmp->left = tmp->right = tmp->prev = tmp->next = nullptr;
+        static Node* last = nullptr;
+        static Node* before = nullptr;
+        if (last) {
+            last->next = tmp;
+            // last->next->next = nullptr;
+            
+        }
+        before = last;
+        last = tmp;
+        // last->next = nullptr;
+        last->prev = before;
+        return last;
+    }
+
+    Node* makeList2(Node* tmp)
+    {
+        // Node* tmp = tmp1;
+        // static size_t count = 0;
+        // tmp->left = tmp->right = tmp->prev = tmp->next = nullptr;
+        static Node* last = nullptr;
+        static Node* before = nullptr;
+        if (last) {
+            last->next = tmp;
+            // last->next->next = nullptr;
+            // last->prev = before;
+        }
+        before = last;
+        last = tmp;
+        // last->next = nullptr;
+        last->prev = before;
+        return last;
+    }
+
+    size_t makeMergeGreatAgain(Node*& head1, Node*& head2){
+        printList(head1);
+        printList(head2);
+        size_t count = 0;
+        Node* current1 = head1;
+        Node* current2 = head2;
+        Node* tail1 = nullptr;
+        Node* tail2 = nullptr;
+        while(current1 || current2){
+            Node* temp1 = current1;
+            // if(temp1)
+            //     temp1->left = temp1->right = temp1->prev = temp1->next = nullptr;
+            Node* temp2 = current2;
+            // if(temp2)
+            //     temp2->left = temp2->right = temp2->prev = temp2->next = nullptr;
+
+            if(temp1 && temp2){
+                if(temp1->data < temp2->data) {
+                    tail1 = makeList1(temp1);
+                    current1 = current1->next;
+                    // tail1->next = nullptr; 
+                    }
+                else if(temp1->data == temp2->data) {
+                    tail1 = makeList1(temp1);
+                    // tail1->next = nullptr;
+                    tail2 = makeList2(temp2);
+                    // tail2->next = nullptr;
+                    current1 = current1->next;
+                    current2 = current2->next;
+                    count++;
+                } else {
+                    tail1 = makeList1(temp2);
+                    // tail1->next = nullptr;
+                    current2 = current2->next;
+                }
+            } else if(temp1 && !temp2){
+                tail1 = makeList1(temp1);
+                // tail1->next = nullptr;
+                current1 = current1->next;
+            } else {
+                tail1 = makeList1(temp2);
+                // tail1->next = nullptr;
+                current2 = current2->next;
+            }      
+            // if(current1) current1 = current1->next;
+            // if(current2) current2 = current2->next;
+        }
+
+        while(tail1) {
+            if(tail1->prev) tail1 = tail1->prev;
+            else break;    
+        }
+
+        size_t realy_last = count;
+        std::cout << realy_last << "   count   " << std::endl;
+
+        while(tail2) {
+            if(tail2->prev) {tail2 = tail2->prev;}
+            else break;    
+        }
+
+        while(--realy_last){
+            tail2 = tail2->next;
+        }
+
+        tail2->next = nullptr;
+        std::cout << tail2->data << "   tail2   " << std::endl;
+
+        while(tail2) {
+            if(tail2->prev) {tail2 = tail2->prev;}
+            else break;    
+        }
+
+
+        printList(tail1);
+        printList(tail2);
+        head1 = tail1;
+        head2 = tail2;
+        return count;
+    }
     
 
     template<typename... Args>
@@ -1491,29 +1628,29 @@ class PrintVisitor : public AVLTree<T>::Visitor
 int main() {
 
     // AVLTree<int>::My_Iterator::fake_value = 999999;
-    AVLTree<int> pinus = {1, 2, 3, 6};
-    AVLTree<int> oak = {3,  4,   5, 6, 7};
+    // AVLTree<int> pinus = {-1, 1, 2, 3, 6, 7, 10, 12};
+    // AVLTree<int> oak = {0, 1, 3,  4, 5, 6, 7, 11};
         // Создаем генератор случайных чисел
-        // std::random_device rd;  // Используется для получения непредсказуемого начального числа
-        // std::mt19937 gen(rd()); // Генератор: Mersenne Twister
+        std::random_device rd;  // Используется для получения непредсказуемого начального числа
+        std::mt19937 gen(rd()); // Генератор: Mersenne Twister
     
         // Определяем распределение, например, равномерное распределение от 10 до 20
-        // std::uniform_int_distribution<> distrib(1, 10);
+        std::uniform_int_distribution<> distrib(1, 100);
     
         // Генерируем случайное число
   
-    // AVLTree<int> pinus{0, 1, 4, 5, 6, 7, 8, 9 ,10};
+    AVLTree<int> pinus{1};
 
-    // AVLTree<int> oak{ 1, 2, 4, 5, 9, 10};
-    //     for (size_t i = 1; i < 11; i++)
-    // {
+    AVLTree<int> oak{1};
+        for (size_t i = 1; i < 100; i++)
+    {
     //     // /* code */tree2.insert(rand() % 1000);
-    //     // pinus.insert(i);
-    //     pinus.insert(distrib(gen));
-    //     oak.insert(distrib(gen));
+        // pinus.insert(i);
+        pinus.insert(distrib(gen));
+        oak.insert(distrib(gen));
     //     // origin.insert(i);
     //     // origin.insert(rand() % 1000);
-    // }
+    }
 
     // AVLTree<int>::My_Iterator it = pinus.begin();
     // AVLTree<int>::My_Iterator it_o = oak.begin();
