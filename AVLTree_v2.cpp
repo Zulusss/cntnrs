@@ -9,6 +9,8 @@
 #include <sstream>
 #include <utility>
 #include <random>
+#include <gtest/gtest.h>
+#include <set>
 // #include "insert_many_set.hpp"
 // #include <iterator>
 // #include <cstddef>
@@ -65,6 +67,8 @@ public:
         insert(tmp);
         }
     };
+
+
 
     ~AVLTree() {
         clear(root);
@@ -356,17 +360,32 @@ public:
         return end();
     }
 
-    AVLTree& operator=(const AVLTree &other){
+    AVLTree& operator=(AVLTree &&other){
         if(this != &other){
-        AVLTree tmp;
+        // AVLTree tmp;
         clear(root);
-        *this = std::move(tmp);
+        how_much = other.how_much;
+        root = other.root;
+    
+        other.how_much = 0;
+        other.root = nullptr;
+    
+        // *this = std::move(tmp);
         }
         return *this;
     }
 
-    AVLTree(AVLTree &other) noexcept {
+    AVLTree(const AVLTree &other) noexcept {
         this->root = xerox(other.root);
+        how_much = other.how_much;
+    }
+
+    AVLTree(AVLTree&& other) noexcept {
+        this->root = xerox(other.root);
+        how_much = other.how_much;
+        other.how_much = 0;
+        clear(other.root);
+        other.root = nullptr;
     }
 
     void clear(Node* node) {    //post-order л-п-к
@@ -392,6 +411,7 @@ public:
     bool contains(const key_type& key){
         if(!root) return false;
         if (how_much == 1 && root->data == key) return true;
+        if(key == maxdata()) return true;
 
         Node* comeback;
 
@@ -403,7 +423,7 @@ public:
     std::pair<My_Iterator, bool> insert(const value_type& value){
         Node* get_over_here;
         if(contains(value)) {get_over_here = SuperFind(root, value); My_Iterator ret{get_over_here}; return std::make_pair(ret, false);}
-        else {root = insert(root, value); get_over_here = SuperFind(root, value); My_Iterator ret{get_over_here}; return std::make_pair(get_over_here, true);} 
+        else {root = insert(root, value); get_over_here = SuperFind(root, value); My_Iterator ret{get_over_here}; return std::make_pair(ret, true);} 
     }
 
     void erase(int num){
@@ -620,7 +640,7 @@ void dump4(Node * node, bool high = true, std::vector<std::string> const & lpref
 }
 
 Node * findmin(Node* node){
-    // if(!node) return 0;
+    if(!node) return 0;
     return node->left ? findmin(node->left) : node;
 }
 
@@ -824,16 +844,16 @@ size_t findIndex(My_Iterator pos) {
         }
     }
 
-    void swap(AVLTree& other){
-        // this* = std::swap(this, other);
-        // if(this != other){
-        //     AVLTree tmp;
-        //     tmp = std::move(root);
-        //     clear(root);
-        //     *this = std::move(tmp);
-        //     *this = tmp;
-        // }
-    }
+    // void swap(AVLTree& other){
+    //     // this* = std::swap(this, other);
+    //     // if(this != other){
+    //     //     AVLTree tmp;
+    //     //     tmp = std::move(root);
+    //     //     clear(root);
+    //     //     *this = std::move(tmp);
+    //     //     *this = tmp;
+    //     // }
+    // }
     void m3(AVLTree& other){
         My_Iterator it = this->begin(), it_o = other.begin();
         for(; (it != end() || it_o != other.end()) ;){
@@ -885,7 +905,9 @@ size_t findIndex(My_Iterator pos) {
         }
     
     void merge(AVLTree& other){
-   
+            
+        if(this->root == nullptr && other.root != nullptr) {this->swap(other); return;}
+        else if(this->root != nullptr && other.root == nullptr) return;
         this -> linkin_park();
         Node* start = this->findmin(root);
         other.linkin_park();
@@ -958,6 +980,8 @@ size_t findIndex(My_Iterator pos) {
                 other.root = listToBST(start_other, how_much_in_second);
             } else other.root = nullptr;
             
+            how_much = how_much + other.how_much - how_much_in_second;
+            other.how_much = how_much_in_second;
         }
     // }
 
@@ -1471,6 +1495,7 @@ Node* listToBST(Node*& head, size_t n) {
         }
 
         void printList(Node*& head){
+            if(!head) return;
             Node* start = head;
             std::cout << " list forward " << std::endl;
             while(start) {std::cout << start->data << " " << std::flush; if(start->next) start = start->next; else break;}
@@ -1528,42 +1553,30 @@ Node* listToBST(Node*& head, size_t n) {
         Node* tail2 = nullptr;
         while(current1 || current2){
             Node* temp1 = current1;
-            // if(temp1)
-            //     temp1->left = temp1->right = temp1->prev = temp1->next = nullptr;
             Node* temp2 = current2;
-            // if(temp2)
-            //     temp2->left = temp2->right = temp2->prev = temp2->next = nullptr;
 
             if(temp1 && temp2){
                 if(temp1->data < temp2->data) {
                     tail1 = makeList1(temp1);
                     current1 = current1->next;
-                    // tail1->next = nullptr; 
                     }
                 else if(temp1->data == temp2->data) {
                     tail1 = makeList1(temp1);
-                    // tail1->next = nullptr;
                     tail2 = makeList2(temp2);
-                    // tail2->next = nullptr;
                     current1 = current1->next;
                     current2 = current2->next;
                     count++;
                 } else {
                     tail1 = makeList1(temp2);
-                    // tail1->next = nullptr;
                     current2 = current2->next;
                 }
             } else if(temp1 && !temp2){
                 tail1 = makeList1(temp1);
-                // tail1->next = nullptr;
                 current1 = current1->next;
             } else {
                 tail1 = makeList1(temp2);
-                // tail1->next = nullptr;
                 current2 = current2->next;
             }      
-            // if(current1) current1 = current1->next;
-            // if(current2) current2 = current2->next;
         }
 
         while(tail1) {
@@ -1574,11 +1587,12 @@ Node* listToBST(Node*& head, size_t n) {
         size_t realy_last = count;
         std::cout << realy_last << "   count   " << std::endl;
 
+        if(count){
         while(tail2) {
             if(tail2->prev) {tail2 = tail2->prev;}
             else break;    
         }
-
+        
         while(--realy_last){
             tail2 = tail2->next;
         }
@@ -1590,6 +1604,7 @@ Node* listToBST(Node*& head, size_t n) {
             if(tail2->prev) {tail2 = tail2->prev;}
             else break;    
         }
+        }
 
 
         printList(tail1);
@@ -1598,7 +1613,11 @@ Node* listToBST(Node*& head, size_t n) {
         head2 = tail2;
         return count;
     }
-    
+
+    void swap(AVLTree &other){
+        std::swap(root, other.root);
+        std::swap(how_much, other.how_much);      
+    }
 
     template<typename... Args>
     std::vector<std::pair<My_Iterator, bool>> insert_many(Args&&... args)
@@ -1625,56 +1644,853 @@ class PrintVisitor : public AVLTree<T>::Visitor
         }
 };
 
-int main() {
+// int main() {
 
-    // AVLTree<int>::My_Iterator::fake_value = 999999;
-    // AVLTree<int> pinus = {-1, 1, 2, 3, 6, 7, 10, 12};
-    // AVLTree<int> oak = {0, 1, 3,  4, 5, 6, 7, 11};
-        // Создаем генератор случайных чисел
-        std::random_device rd;  // Используется для получения непредсказуемого начального числа
-        std::mt19937 gen(rd()); // Генератор: Mersenne Twister
+//     // AVLTree<int>::My_Iterator::fake_value = 999999;
+//     // AVLTree<int> pinus = {-1, 1, 2, 3, 6, 7, 10, 12};
+//     // AVLTree<int> oak = {0, 1, 3,  4, 5, 6, 7, 11};
+//         // Создаем генератор случайных чисел
+//         std::random_device rd;  // Используется для получения непредсказуемого начального числа
+//         std::mt19937 gen(rd()); // Генератор: Mersenne Twister
     
-        // Определяем распределение, например, равномерное распределение от 10 до 20
-        std::uniform_int_distribution<> distrib(1, 100);
+//         // Определяем распределение, например, равномерное распределение от 10 до 20
+//         std::uniform_int_distribution<> distrib(1, 50);
     
-        // Генерируем случайное число
+//         // Генерируем случайное число
   
-    AVLTree<int> pinus{1};
+//     AVLTree<int> pinus{1};
 
-    AVLTree<int> oak{1};
-        for (size_t i = 1; i < 100; i++)
-    {
-    //     // /* code */tree2.insert(rand() % 1000);
-        // pinus.insert(i);
-        pinus.insert(distrib(gen));
-        oak.insert(distrib(gen));
-    //     // origin.insert(i);
-    //     // origin.insert(rand() % 1000);
-    }
+//     AVLTree<int> oak{1};
+//         for (size_t i = 1; i < 51; i++)
+//     {
+//     //     // /* code */tree2.insert(rand() % 1000);
+//         // pinus.insert(i);
+//         pinus.insert(distrib(gen));
+//         oak.insert(distrib(gen));
+//     //     // origin.insert(i);
+//     //     // origin.insert(rand() % 1000);
+//     }
 
-    // AVLTree<int>::My_Iterator it = pinus.begin();
-    // AVLTree<int>::My_Iterator it_o = oak.begin();
-    // std::cout <<  (it == it_o) << " it == it_o" << std::endl;
+//     // AVLTree<int>::My_Iterator it = pinus.begin();
+//     // AVLTree<int>::My_Iterator it_o = oak.begin();
+//     // std::cout <<  (it == it_o) << " it == it_o" << std::endl;
 
-    // pinus.m3(oak);
-    // pinus.dump4(pinus.root);
-    std::cout << std::endl;  
-    // oak.dump4(oak.root);
-    pinus.merge(oak);
-    std::cout << " here we go " << std::endl;
-    // oak.merge(pinus);
-    pinus.dump4(pinus.root);
-    std::cout << std::endl;   
-    for(auto i: pinus) std::cout << i <<  " "  << std::flush;
-    std::cout << std::endl;
-    // pinus.insert_many(100, 10, 20);
-    // pinus.dump4(pinus.root);
-    // std::cout << std::endl;  
-    oak.dump4(oak.root);
-    for(auto i: oak) std::cout << i <<  " "  << std::flush;
-    std::cout << std::endl;
+//     // pinus.m3(oak);
+//     // pinus.dump4(pinus.root);
+//     std::cout << std::endl;  
+//     // oak.dump4(oak.root);
+//     pinus.merge(oak);
+//     std::cout << " here we go " << std::endl;
+//     // oak.merge(pinus);
+//     pinus.dump4(pinus.root);
+//     std::cout << std::endl;   
+//     for(auto i: pinus) std::cout << i <<  " "  << std::flush;
+//     std::cout << std::endl;
+//     // pinus.insert_many(100, 10, 20);
+//     // pinus.dump4(pinus.root);
+//     // std::cout << std::endl;  
+//     oak.dump4(oak.root);
+//     for(auto i: oak) std::cout << i <<  " "  << std::flush;
+//     std::cout << std::endl;
 
-    return 0;
-}
+//     return 0;
+// }
 
 // #endif
+
+TEST(set_constructor, case1) {
+    AVLTree<int> s21_set_int;
+    AVLTree<double> s21_set_double;
+    AVLTree<std::string> s21_set_string;
+  
+    EXPECT_EQ(s21_set_int.size(), 0U);
+    EXPECT_EQ(s21_set_double.size(), 0U);
+    EXPECT_EQ(s21_set_string.size(), 0U);
+  }
+  
+  TEST(set_constructor, case2) {
+    AVLTree<int> s21_set_int{1, 2, 3, 4, 5};
+    AVLTree<double> s21_set_double{1.30359, 2847.4925, 923.39281};
+    AVLTree<std::string> s21_set_string{"Hello", ",", "world", "!"};
+  
+    EXPECT_EQ(s21_set_int.size(), 5U);
+    EXPECT_EQ(s21_set_double.size(), 3U);
+    EXPECT_EQ(s21_set_string.size(), 4U);
+  }
+  
+  TEST(set_constructor, case3) {
+    AVLTree<int> s21_set_ref_int{1, 2, 3, 4, 5};
+    AVLTree<int> s21_set_res_int{s21_set_ref_int};
+  
+    AVLTree<double> s21_set_ref_double{1.30359, 2847.4925, 923.39281};
+    AVLTree<double> s21_set_res_double{s21_set_ref_double};
+  
+    AVLTree<std::string> s21_set_ref_string{"Hello", ",", "world", "!"};
+    AVLTree<std::string> s21_set_res_string{s21_set_ref_string};
+  
+    EXPECT_EQ(s21_set_ref_int.size(), s21_set_res_int.size());
+    EXPECT_EQ(s21_set_ref_double.size(), s21_set_res_double.size());
+    EXPECT_EQ(s21_set_ref_string.size(), s21_set_res_string.size());
+  }
+  
+  TEST(set_constructor, case4) {
+    AVLTree<int> s21_set_ref_int{1, 2, 3, 4, 5};
+    AVLTree<int> s21_set_res_int = std::move(s21_set_ref_int);
+  
+    AVLTree<double> s21_set_ref_double{1.30359, 2847.4925, 923.39281};
+    AVLTree<double> s21_set_res_double = std::move(s21_set_ref_double);
+  
+    AVLTree<std::string> s21_set_ref_string{"Hello", ",", "world", "!"};
+    AVLTree<std::string> s21_set_res_string = std::move(s21_set_ref_string);
+  
+    EXPECT_EQ(s21_set_ref_int.size(), 0U);
+    EXPECT_EQ(s21_set_res_int.size(), 5U);
+  
+    EXPECT_EQ(s21_set_ref_double.size(), 0U);
+    EXPECT_EQ(s21_set_res_double.size(), 3U);
+  
+    EXPECT_EQ(s21_set_ref_string.size(), 0U);
+    EXPECT_EQ(s21_set_res_string.size(), 4U);
+  }
+  
+  TEST(set_constructor, case5) {
+    AVLTree<int> s21_set_ref_int{1, 2, 3, 4, 5};
+    AVLTree<int> s21_set_res_int;
+    s21_set_res_int = std::move(s21_set_ref_int);
+  
+    AVLTree<double> s21_set_ref_double{1.30359, 2847.4925, 923.39281};
+    AVLTree<double> s21_set_res_double;
+    s21_set_res_double = std::move(s21_set_ref_double);
+  
+    AVLTree<std::string> s21_set_ref_string{"Hello", ",", "world", "!"};
+    AVLTree<std::string> s21_set_res_string;
+    s21_set_res_string = std::move(s21_set_ref_string);
+  
+    EXPECT_EQ(s21_set_ref_int.size(), 0U);
+    EXPECT_EQ(s21_set_res_int.size(), 5U);
+  
+    EXPECT_EQ(s21_set_ref_double.size(), 0U);
+    EXPECT_EQ(s21_set_res_double.size(), 3U);
+  
+    EXPECT_EQ(s21_set_ref_string.size(), 0U);
+    EXPECT_EQ(s21_set_res_string.size(), 4U);
+  }
+  
+  TEST(set_constructor, case7) {
+    AVLTree<int> s21_set_ref_int{1, 2, 3, 4};
+    AVLTree<int> s21_set_res_int{s21_set_ref_int};
+  
+    AVLTree<double> s21_set_ref_double{1.30359, 2847.4925, 923.39281, 1.23};
+    AVLTree<double> s21_set_res_double{s21_set_ref_double};
+  
+    AVLTree<std::string> s21_set_ref_string{"Hello", ",", "world", "!"};
+    AVLTree<std::string> s21_set_res_string{s21_set_ref_string};
+  
+    auto it_res_int = s21_set_res_int.begin();
+    for (auto it_ref_int = s21_set_ref_int.begin();
+         it_ref_int != s21_set_ref_int.end(); ++it_ref_int) {
+      EXPECT_EQ(*it_res_int, *it_ref_int);
+      ++it_res_int;
+    }
+  
+    auto it_res_double = s21_set_res_double.begin();
+    for (auto it_ref_double = s21_set_ref_double.begin();
+         it_ref_double != s21_set_ref_double.end(); ++it_ref_double) {
+      EXPECT_EQ(*it_res_double, *it_ref_double);
+      ++it_res_double;
+    }
+  
+    auto it_res_string = s21_set_res_string.begin();
+    for (auto it_ref_string = s21_set_ref_string.begin();
+         it_ref_string != s21_set_ref_string.end(); ++it_ref_string) {
+      EXPECT_EQ(*it_res_string, *it_ref_string);
+      ++it_res_string;
+    }
+  }
+  
+  TEST(set_insert, case1) {
+    AVLTree<int> s21_set;
+  
+    std::pair<AVLTree<int>::My_Iterator, bool> insert1 = s21_set.insert(9);
+    EXPECT_EQ(*insert1.first, 9);
+    EXPECT_EQ(insert1.second, true);
+  
+    std::pair<AVLTree<int>::My_Iterator, bool> insert2 = s21_set.insert(9);
+    std::pair<AVLTree<int>::My_Iterator, bool> insert3 = s21_set.insert(9);
+    EXPECT_EQ(insert2.second, 0);
+    EXPECT_EQ(insert3.second, false);
+  
+    std::pair<AVLTree<int>::My_Iterator, bool> insert4 = s21_set.insert(23);
+    EXPECT_EQ(*insert4.first, 23);
+    EXPECT_EQ(insert4.second, true);
+  
+    std::pair<AVLTree<int>::My_Iterator, bool> insert5 = s21_set.insert(98);
+    EXPECT_EQ(*insert5.first, 98);
+    EXPECT_EQ(insert5.second, true);
+  
+    EXPECT_EQ(s21_set.size(), 3U);
+  }
+  
+  TEST(set_insert, case2) {
+    AVLTree<double> s21_set;
+  
+    std::pair<AVLTree<double>::My_Iterator, bool> insert1 = s21_set.insert(1.4);
+    EXPECT_EQ(*insert1.first, 1.4);
+    EXPECT_EQ(insert1.second, true);
+  
+    std::pair<AVLTree<double>::My_Iterator, bool> insert2 = s21_set.insert(2.77);
+    EXPECT_EQ(*insert2.first, 2.77);
+    EXPECT_EQ(insert2.second, true);
+  
+    std::pair<AVLTree<double>::My_Iterator, bool> insert3 = s21_set.insert(3.9);
+    EXPECT_EQ(*insert3.first, 3.9);
+    EXPECT_EQ(insert3.second, true);
+  
+    std::pair<AVLTree<double>::My_Iterator, bool> insert4 = s21_set.insert(2.77);
+    std::pair<AVLTree<double>::My_Iterator, bool> insert5 = s21_set.insert(3.9);
+    EXPECT_EQ(insert4.second, false);
+    EXPECT_EQ(insert5.second, false);
+  
+    EXPECT_EQ(s21_set.size(), 3U);
+  }
+  
+  TEST(set_insert, case3) {
+    AVLTree<std::string> s21_set;
+  
+    std::pair<AVLTree<std::string>::My_Iterator, bool> insert1 =
+        s21_set.insert("hello");
+    EXPECT_EQ(*insert1.first, "hello");
+    EXPECT_EQ(insert1.second, true);
+  
+    std::pair<AVLTree<std::string>::My_Iterator, bool> insert2 =
+        s21_set.insert("hi");
+    EXPECT_EQ(*insert2.first, "hi");
+    EXPECT_EQ(insert2.second, true);
+  
+    std::pair<AVLTree<std::string>::My_Iterator, bool> insert3 =
+        s21_set.insert("hi");
+    EXPECT_EQ(insert3.second, false);
+  
+    std::pair<AVLTree<std::string>::My_Iterator, bool> insert4 =
+        s21_set.insert("hola");
+    EXPECT_EQ(*insert4.first, "hola");
+    EXPECT_EQ(insert4.second, true);
+  
+    std::pair<AVLTree<std::string>::My_Iterator, bool> insert5 =
+        s21_set.insert("hello");
+    EXPECT_EQ(insert5.second, false);
+  
+    EXPECT_EQ(s21_set.size(), 3U);
+  }
+  
+  TEST(set_insert, case4) {
+    AVLTree<int> s21_set;
+  
+    std::pair<AVLTree<int>::My_Iterator, bool> insert1 = s21_set.insert(9);
+    EXPECT_EQ(*insert1.first, 9);
+    EXPECT_EQ(insert1.second, true);
+  
+    std::pair<AVLTree<int>::My_Iterator, bool> insert2 = s21_set.insert(9);
+    std::pair<AVLTree<int>::My_Iterator, bool> insert3 = s21_set.insert(9);
+    EXPECT_EQ(insert2.second, false);
+    EXPECT_EQ(insert3.second, false);
+  
+    EXPECT_EQ(s21_set.size(), 1U);
+  }
+  
+  TEST(set_insert, case5) {
+    AVLTree<double> s21_set = {21};
+  
+    std::pair<AVLTree<double>::My_Iterator, bool> insert1 = s21_set.insert(1.4);
+    EXPECT_EQ(insert1.second, true);
+  
+    EXPECT_EQ(s21_set.size(), 2U);
+  }
+  
+  TEST(set_insert, case6) {
+    AVLTree<std::string> s21_set = {"hello"};
+  
+    std::pair<AVLTree<std::string>::My_Iterator, bool> insert1 =
+        s21_set.insert("hi");
+    EXPECT_EQ(*insert1.first, "hi");
+    EXPECT_EQ(insert1.second, true);
+  
+    EXPECT_EQ(s21_set.size(), 2U);
+  }
+  
+  TEST(set_begin, case1) {
+    AVLTree<int> s21_set = {9, 15, 7, 23, 2};
+  
+    EXPECT_EQ(*s21_set.begin(), 2);
+  }
+  
+  TEST(set_begin, case2) {
+    AVLTree<double> s21_set = {11.4, 2.770001, 3.901, 2.77, 3.9};
+  
+    EXPECT_EQ(*s21_set.begin(), 2.77);
+  }
+  
+  TEST(set_begin, case3) {
+    AVLTree<std::string> s21_set = {"hello", "hi", "hi-hi", "hola",
+                                     "hello, there"};
+  
+    EXPECT_EQ(*s21_set.begin(), "hello");
+  }
+  
+//   TEST(set_begin, case4) {
+//     AVLTree<int> s21_set;
+  
+//     EXPECT_THROW(*s21_set.begin(), std::out_of_range);
+//   }
+  
+  TEST(set_begin, case5) {
+    AVLTree<double> s21_set = {1.4, 1.4};
+  
+    EXPECT_EQ(*s21_set.begin(), 1.4);
+  }
+  
+//   TEST(set_begin, case6) {
+//     AVLTree<std::string> s21_set = {"hello", "hello", "hello"};
+  
+//     EXPECT_EQ(*s21_set.cbegin(), "hello");
+//   }
+  
+//   TEST(set_end, case1) {
+//     AVLTree<int> s21_set = {9, 15, 7, 23, 2};
+//     auto it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, 23);
+//   }
+  
+//   TEST(set_end, case2) {
+//     AVLTree<double> s21_set = {11.4, 2.770001, 3.901, 11.400000001, 3.9};
+//     auto it = s21_set.cend();
+//     --it;
+  
+//     EXPECT_EQ(*it, 11.400000001);
+//   }
+  
+//   TEST(set_end, case3) {
+//     AVLTree<std::string> s21_set = {"hello", "hi", "hola-hola", "hola",
+//                                      "hello, there"};
+  
+//     auto it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, "hola-hola");
+//   }
+  
+//   TEST(set_end, case4) {
+//     AVLTree<int> s21_set;
+  
+//     EXPECT_THROW(*s21_set.end(), std::out_of_range);
+//   }
+  
+//   TEST(set_end, case5) {
+//     AVLTree<double> s21_set = {1.4, 1.4};
+//     auto it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, 1.4);
+//   }
+  
+//   TEST(set_end, case6) {
+//     AVLTree<std::string> s21_set = {"hello", "hello", "hello"};
+//     auto it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, "hello");
+//   }
+  
+//   TEST(set_end, case7) {
+//     AVLTree<int> s21_set;
+  
+//     EXPECT_THROW(*s21_set.cend(), std::out_of_range);
+//   }
+  
+//   TEST(set_balance, case1) {
+//     AVLTree<int> s21_set = {1, 15, 5};
+//     auto it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, 15);
+//     EXPECT_EQ(s21_set.size(), 3U);
+//   }
+  
+//   TEST(set_balance, case2) {
+//     AVLTree<double> s21_set = {11.4, 2.770001, 3.901};
+//     auto it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, 11.4);
+//     EXPECT_EQ(s21_set.size(), 3U);
+//   }
+  
+//   TEST(set_balance, case3) {
+//     AVLTree<std::string> s21_set = {"hello", "hi", "hola-hola", "hola",
+//                                      "hello, there"};
+  
+//     auto it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, "hola-hola");
+//     EXPECT_EQ(s21_set.size(), 5U);
+//   }
+  
+//   TEST(set_balance, case4) {
+//     AVLTree<int> s21_set = {10, 5, 20, 30, 1543};
+//     auto it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, 1543);
+//     EXPECT_EQ(*s21_set.begin(), 5);
+//     EXPECT_EQ(s21_set.size(), 5U);
+//   }
+  
+//   TEST(set_balance, case5) {
+//     AVLTree<int> s21_set = {30, 5, 43, 1, 20, 40, 60, 35, 32};
+//     auto it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, 60);
+//     EXPECT_EQ(*s21_set.begin(), 1);
+//     EXPECT_EQ(s21_set.size(), 9U);
+//   }
+  
+  TEST(set_erase, case1) {
+    AVLTree<int> s21_set = {10, 5, 15, 4, 18, 13, 16};
+  
+    auto it = s21_set.begin();
+    ++it;
+    ++it;
+    ++it;
+    ++it;
+    s21_set.erase(it);
+//     it = s21_set.end();
+//     --it;
+  
+    EXPECT_EQ(*s21_set.begin(), 4);
+//     EXPECT_EQ(*it, 18);
+    EXPECT_EQ(s21_set.size(), 6U);
+  
+    it = s21_set.begin();
+    s21_set.erase(it);
+//     it = s21_set.end();
+//     --it;
+  
+    EXPECT_EQ(*s21_set.begin(), 5);
+//     EXPECT_EQ(*it, 18);
+    EXPECT_EQ(s21_set.size(), 5U);
+  
+    it = s21_set.begin();
+    ++it;
+    s21_set.erase(it);
+//     it = s21_set.end();
+//     --it;
+  
+    EXPECT_EQ(*s21_set.begin(), 5);
+//     EXPECT_EQ(*it, 18);
+    EXPECT_EQ(s21_set.size(), 4U);
+  
+//     it = s21_set.end();
+//     --it;
+//     s21_set.erase(it);
+//     it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*s21_set.begin(), 5);
+//     EXPECT_EQ(*it, 16);
+//     EXPECT_EQ(s21_set.size(), 3U);
+  
+    it = s21_set.begin();
+    ++it;
+    s21_set.erase(it);
+  
+    it = s21_set.begin();
+    ++it;
+    s21_set.erase(it);
+  
+    it = s21_set.begin();
+    s21_set.erase(it);
+  
+    EXPECT_EQ(s21_set.size(), 1U);
+  }
+  
+  TEST(set_erase, case2) {
+    AVLTree<int> s21_set = {30, 1543};
+  
+    auto it = s21_set.begin();
+    ++it;
+    s21_set.erase(it);
+    it = s21_set.begin();
+    s21_set.erase(it);
+  
+    EXPECT_EQ(s21_set.size(), 0U);
+  }
+  
+//   TEST(set_erase, case3) {
+//     AVLTree<std::string> s21_set = {"hello", "hi", "hola-hola", "hola",
+//                                      "hello, there"};
+  
+//     auto it = s21_set.end();
+//     --it;
+//     s21_set.erase(it);
+//     it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, "hola");
+//     EXPECT_EQ(s21_set.size(), 4U);
+  
+//     it = s21_set.end();
+//     --it;
+//     s21_set.erase(it);
+//     it = s21_set.end();
+//     --it;
+//     EXPECT_EQ(*it, "hi");
+//     EXPECT_EQ(s21_set.size(), 3U);
+  
+//     s21_set.insert("hola-hola");
+//     s21_set.insert("hola");
+//     it = s21_set.end();
+//     --it;
+//     s21_set.erase(it);
+//     it = s21_set.end();
+//     --it;
+//     EXPECT_EQ(*it, "hola");
+//     EXPECT_EQ(s21_set.size(), 4U);
+//   }
+  
+  TEST(set_erase, case4) {
+    AVLTree<double> s21_set = {22.2, 12.4457, 56.84, 941.44, 44.48};
+  
+//     auto it = s21_set.end();
+//     --it;
+//     --it;
+//     s21_set.erase(it);
+//     it = s21_set.end();
+//     --it;
+//     EXPECT_EQ(*it, 941.44);
+//     EXPECT_EQ(s21_set.size(), 4U);
+  
+    auto it = s21_set.begin();
+    ++it;
+    ++it;
+    ++it;
+    s21_set.erase(it);
+//     it = s21_set.end();
+//     --it;
+  
+//     EXPECT_EQ(*it, 44.48);
+    EXPECT_EQ(s21_set.size(), 4U);
+    EXPECT_EQ(s21_set.contains(56.84), false);
+
+  }
+  
+  TEST(set_erase, case5) {
+    AVLTree<double> s21_set = {22.2, 44.48, 12.4457, 1.44};
+  
+    auto it = s21_set.begin();
+    s21_set.erase(it);
+    it = s21_set.begin();
+    ++it;
+    ++it;
+    EXPECT_EQ(*it, 44.48);
+    EXPECT_EQ(s21_set.size(), 3U);
+  }
+  
+//   TEST(set_erase, case6) {
+//     AVLTree<double> s21_set = {22.2, 44.48, 12.4457, 6.84, 1.44};
+  
+//     auto it = s21_set.begin();
+//     ++it;
+//     ++it;
+//     ++it;
+//     s21_set.erase(it);
+//     it = s21_set.begin();
+//     ++it;
+//     ++it;
+//     ++it;
+  
+//     EXPECT_EQ(*it, 44.48);
+//     EXPECT_EQ(s21_set.size(), 4U);
+//   }
+  
+  TEST(set_erase, case7) {
+    AVLTree<double> s21_set = {22.2, 12.4457, 56.84, 941.44, 44.48};
+  
+    auto it = s21_set.begin();
+    ++it;
+    s21_set.erase(it);
+    it = s21_set.begin();
+    ++it;
+    EXPECT_EQ(*it, 44.48);
+    EXPECT_EQ(s21_set.size(), 4U);
+  }
+  
+  TEST(set_erase, case8) {
+    AVLTree<double> s21_set = {22.2, 44.48, 12.4457, 1.44};
+  
+    auto it = s21_set.begin();
+    ++it;
+    s21_set.erase(it);
+    it = s21_set.begin();
+    ++it;
+    EXPECT_EQ(*it, 22.2);
+    EXPECT_EQ(s21_set.size(), 3U);
+  }
+  
+//   TEST(set_erase, case9) {
+//     AVLTree<double> s21_set = {22.2,  44.48, 12.4457, 32.45,
+//                                 65.12, 66.32, 40.54,   6.4};
+  
+//     auto it = s21_set.end();
+//     --it;
+//     --it;
+//     --it;
+//     --it;
+//     --it;
+//     s21_set.erase(it);
+//     it = s21_set.begin();
+//     ++it;
+//     ++it;
+//     ++it;
+  
+//     EXPECT_EQ(*it, 40.54);
+//     EXPECT_EQ(s21_set.size(), 7U);
+//   }
+  
+//   TEST(set_erase, case10) {
+//     AVLTree<double> s21_set = {22.2};
+  
+//     auto it = s21_set.begin();
+//     ++it;
+//     s21_set.erase(it);
+//     EXPECT_EQ(s21_set.size(), 0U);
+//   }
+  
+  TEST(set_empty, case1) {
+    AVLTree<double> s21_set = {22.2, 44.48, 12.4457, 1.44};
+  
+    EXPECT_EQ(s21_set.empty(), 0);
+  }
+  
+  TEST(set_empty, case2) {
+    AVLTree<double> s21_set;
+  
+    EXPECT_EQ(s21_set.empty(), 1);
+  }
+  
+//   TEST(set_MaxSize, case1) {
+//     AVLTree<double> s21_set;
+//     std::set<double> std_set;
+  
+//     EXPECT_EQ(s21_set.max_size(), std_set.max_size());
+//   }
+  
+//   TEST(set_MaxSize, case2) {
+//     AVLTree<double> s21_set = {22.2, 44.48, 12.4457, 1.44};
+  
+//     std::set<double> std_set = {22.2, 44.48, 12.4457, 1.44};
+  
+//     EXPECT_EQ(s21_set.max_size(), std_set.max_size());
+//   }
+  
+  TEST(set_swap, case1) {
+    AVLTree<double> s21_set_ref = {22.2, 44.48};
+    AVLTree<double> s21_set_res = {12.4457, 1.44, 22.2};
+  
+    s21_set_ref.swap(s21_set_res);
+  
+    EXPECT_EQ(s21_set_ref.size(), 3U);
+    EXPECT_EQ(*s21_set_ref.begin(), 1.44);
+  
+    EXPECT_EQ(s21_set_res.size(), 2U);
+    EXPECT_EQ(*s21_set_res.begin(), 22.2);
+  }
+  
+  TEST(set_swap, case2) {
+    AVLTree<double> s21_set_ref = {22.2, 44.48};
+    AVLTree<double> s21_set_res;
+  
+    s21_set_ref.swap(s21_set_res);
+  
+    EXPECT_EQ(s21_set_ref.size(), 0U);
+  
+    EXPECT_EQ(s21_set_res.size(), 2U);
+    EXPECT_EQ(*s21_set_res.begin(), 22.2);
+  }
+  
+  TEST(set_swap, case3) {
+    AVLTree<double> s21_set_ref;
+    AVLTree<double> s21_set_res = {12.4457, 1.44, 22.2};
+  
+    s21_set_ref.swap(s21_set_res);
+  
+    EXPECT_EQ(s21_set_ref.size(), 3U);
+    EXPECT_EQ(*s21_set_ref.begin(), 1.44);
+  
+    EXPECT_EQ(s21_set_res.size(), 0U);
+  }
+  
+  TEST(set_swap, case4) {
+    AVLTree<double> s21_set_ref;
+    AVLTree<double> s21_set_res;
+  
+    s21_set_ref.swap(s21_set_res);
+  
+    EXPECT_EQ(s21_set_ref.size(), 0U);
+    EXPECT_EQ(s21_set_res.size(), 0U);
+  }
+  
+  TEST(set_contains, case1) {
+    AVLTree<double> s21_set = {22.2, 44.48};
+  
+    EXPECT_EQ(s21_set.contains(22.2), true);
+    EXPECT_EQ(s21_set.contains(44.48), true);
+  }
+
+  TEST(set_contains, case11) {
+    AVLTree<int> s21_set = {22, 44};
+  
+    EXPECT_EQ(s21_set.contains(11), false);
+    EXPECT_EQ(s21_set.contains(22), true);
+    EXPECT_EQ(s21_set.contains(44), true);
+  }
+  
+  TEST(set_contains, case2) {
+    AVLTree<double> s21_set_ref = {22.2, 44.48};
+    AVLTree<double> s21_set_res;
+  
+    s21_set_ref.swap(s21_set_res);
+  
+    EXPECT_EQ(s21_set_ref.size(), 0U);
+    EXPECT_EQ(s21_set_ref.contains(22.2), false);
+    EXPECT_EQ(s21_set_ref.contains(44.48), false);
+  
+    EXPECT_EQ(s21_set_res.size(), 2U);
+    EXPECT_EQ(s21_set_res.contains(22.2), true);
+    EXPECT_EQ(s21_set_res.contains(44.48), true);
+  }
+  
+  TEST(set_contains, case3) {
+    AVLTree<double> s21_set_ref;
+    AVLTree<double> s21_set_res = {12.4457, 1.44, 22.2};
+  
+    s21_set_ref.swap(s21_set_res);
+  
+    EXPECT_EQ(s21_set_ref.size(), 3U);
+    EXPECT_EQ(s21_set_ref.contains(12.4457), true);
+    EXPECT_EQ(s21_set_ref.contains(1.44), true);
+    EXPECT_EQ(s21_set_ref.contains(22.2), true);
+  
+    EXPECT_EQ(s21_set_res.size(), 0U);
+    EXPECT_EQ(s21_set_res.contains(12.4457), false);
+    EXPECT_EQ(s21_set_res.contains(1.44), false);
+    EXPECT_EQ(s21_set_res.contains(22.2), false);
+  }
+  
+  TEST(set_contains, case4) {
+    AVLTree<double> s21_set;
+  
+    EXPECT_EQ(s21_set.size(), 0U);
+    EXPECT_EQ(s21_set.contains(12.4457), false);
+  }
+  
+  TEST(set_find, case1) {
+    AVLTree<double> s21_set;
+  
+    EXPECT_THROW(*s21_set.find(23.4), std::out_of_range);
+  }
+  
+  TEST(set_find, case2) {
+    AVLTree<double> s21_set = {12.4457, 1.44, 22.2};
+  
+    EXPECT_THROW(*s21_set.find(23.4), std::out_of_range);
+  }
+  
+  TEST(set_find, case3) {
+    AVLTree<double> s21_set = {12.4457, 1.44, 22.2};
+  
+    auto it = s21_set.begin();
+    ++it;
+    EXPECT_EQ(*s21_set.find(12.4457), *it);
+  
+    --it;
+    EXPECT_EQ(*s21_set.find(1.44), *it);
+  
+    ++it;
+    ++it;
+    EXPECT_EQ(*s21_set.find(22.2), *it);
+  }
+  
+  TEST(set_insert_many, case1) {
+    AVLTree<std::string> s21_set;
+  
+    auto insert_m = s21_set.insert_many("hello", "hi", "alloha", "hi");
+  
+    EXPECT_EQ(*insert_m[0].first, "hello");
+    EXPECT_EQ(*insert_m[1].first, "hi");
+    EXPECT_EQ(*insert_m[2].first, "alloha");
+  
+  
+    EXPECT_EQ(s21_set.size(), 3U);
+  }
+  
+//   TEST(set_merge, case1) {
+//     AVLTree<int> s21_set_int_ref{9, 23, 98};
+//     AVLTree<int> s21_set_int_res{78, 88, 108};
+  
+//     s21_set_int_res.merge(s21_set_int_ref);
+  
+//     EXPECT_EQ(s21_set_int_res.size(), 6U);
+//   }
+  
+  TEST(set_merge, case2) {
+    AVLTree<int> s21_set_int_ref{9, 23, 98};
+    AVLTree<int> s21_set_int_res;
+  
+    s21_set_int_res.merge(s21_set_int_ref);
+  
+    EXPECT_EQ(s21_set_int_res.size(), 3U);
+  }
+  
+  TEST(set_merge, case3) {
+    AVLTree<int> s21_set_int_ref;
+    AVLTree<int> s21_set_int_res{9, 23, 98};
+  
+    EXPECT_EQ(s21_set_int_res.size(), 3U);
+  }
+  
+//   TEST(set_merge, case4) {
+//     AVLTree<int> s21_set_int_ref = {9, 23, 98, 1};
+//     AVLTree<int> s21_set_int_res = {8, 32};
+  
+//     s21_set_int_res.merge(s21_set_int_ref);
+  
+//     EXPECT_EQ(s21_set_int_res.size(), 6U);
+//   }
+  
+  TEST(set_merge, case5) {
+    AVLTree<int> s21_set_int_ref = {9, 23, 98, 1};
+    AVLTree<int> s21_set_int_res;
+  
+    s21_set_int_ref.merge(s21_set_int_res);
+  
+    EXPECT_EQ(s21_set_int_ref.size(), 4U);
+  }
+  
+  TEST(set_merge, case6) {
+    AVLTree<int> s21_set_int_ref = {9, 23, 98};
+    AVLTree<int> s21_set_int_res = {98, 1};
+  
+    s21_set_int_ref.merge(s21_set_int_res);
+  
+    EXPECT_EQ(s21_set_int_ref.size(), 4U);
+  }
+  
+  int main(int argc, char **argv) {
+      testing::InitGoogleTest(&argc, argv);
+    
+      return RUN_ALL_TESTS();
+    }
