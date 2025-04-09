@@ -913,7 +913,7 @@ size_t findIndex(My_Iterator pos) {
         other.linkin_park();
         Node* start_other = other.findmin(other.root);
 
-        std::cout << " first  " << start->data << " second  " << start_other->data << std::endl;
+        // std::cout << " first  " << start->data << " second  " << start_other->data << std::endl;
 
         size_t how_much_in_second = makeMergeGreatAgain(start, start_other);
         // std::pair<size_t,  Node*>
@@ -1521,6 +1521,7 @@ Node* listToBST(Node*& head, size_t n) {
         last = tmp;
         // last->next = nullptr;
         last->prev = before;
+        // last->next = nullptr;
         return last;
     }
 
@@ -1540,27 +1541,32 @@ Node* listToBST(Node*& head, size_t n) {
         last = tmp;
         // last->next = nullptr;
         last->prev = before;
+        // last->next = nullptr;
         return last;
     }
 
     size_t makeMergeGreatAgain(Node*& head1, Node*& head2){
-        printList(head1);
-        printList(head2);
+        // printList(head1);
+        // printList(head2);
+        int min = std::min(head1->data, head2->data);
         size_t count = 0;
         Node* current1 = head1;
         Node* current2 = head2;
         Node* tail1 = nullptr;
         Node* tail2 = nullptr;
         while(current1 || current2){
+            // std::cout << " tell me why " << std::flush;
             Node* temp1 = current1;
             Node* temp2 = current2;
 
             if(temp1 && temp2){
                 if(temp1->data < temp2->data) {
+                    std::cout << temp1 -> data << " temp1 data " << temp2->data << " temp2->data " << std::endl;
                     tail1 = makeList1(temp1);
                     current1 = current1->next;
                     }
                 else if(temp1->data == temp2->data) {
+                    std::cout << temp1 -> data << " temp1 data ==" << temp2->data << " temp2->data " << std::endl;
                     tail1 = makeList1(temp1);
                     tail2 = makeList2(temp2);
                     current1 = current1->next;
@@ -1571,16 +1577,22 @@ Node* listToBST(Node*& head, size_t n) {
                     current2 = current2->next;
                 }
             } else if(temp1 && !temp2){
+                std::cout << temp1 -> data << " temp1 data " << std::endl;
                 tail1 = makeList1(temp1);
+                tail1->next = nullptr;
                 current1 = current1->next;
             } else {
+                std::cout << temp2 -> data << " temp2 data " << std::endl;
                 tail1 = makeList1(temp2);
+                tail1->next = nullptr;
                 current2 = current2->next;
             }      
         }
 
         while(tail1) {
-            if(tail1->prev) tail1 = tail1->prev;
+            std::cout << tail1->data << "  t1->d " << std::endl;
+            if(tail1->data == min) tail1->prev = nullptr;
+            if(tail1->prev) {tail1 = tail1->prev; }
             else break;    
         }
 
@@ -1607,8 +1619,8 @@ Node* listToBST(Node*& head, size_t n) {
         }
 
 
-        printList(tail1);
-        printList(tail2);
+        // printList(tail1);
+        // printList(tail2);
         head1 = tail1;
         head2 = tail2;
         return count;
@@ -2437,14 +2449,14 @@ TEST(set_constructor, case1) {
     EXPECT_EQ(s21_set.size(), 3U);
   }
   
-//   TEST(set_merge, case1) {
-//     AVLTree<int> s21_set_int_ref{9, 23, 98};
-//     AVLTree<int> s21_set_int_res{78, 88, 108};
+  TEST(set_merge, case1) {
+    AVLTree<int> s21_set_int_ref{9, 23, 98};
+    AVLTree<int> s21_set_int_res{78, 88, 108};
   
-//     s21_set_int_res.merge(s21_set_int_ref);
+    s21_set_int_res.merge(s21_set_int_ref);
   
-//     EXPECT_EQ(s21_set_int_res.size(), 6U);
-//   }
+    EXPECT_EQ(s21_set_int_res.size(), 6U);
+  }
   
   TEST(set_merge, case2) {
     AVLTree<int> s21_set_int_ref{9, 23, 98};
@@ -2462,14 +2474,14 @@ TEST(set_constructor, case1) {
     EXPECT_EQ(s21_set_int_res.size(), 3U);
   }
   
-//   TEST(set_merge, case4) {
-//     AVLTree<int> s21_set_int_ref = {9, 23, 98, 1};
-//     AVLTree<int> s21_set_int_res = {8, 32};
+  TEST(set_merge, case4) {
+    AVLTree<int> s21_set_int_ref = {9, 23, 98, 1};
+    AVLTree<int> s21_set_int_res = {8, 32};
   
-//     s21_set_int_res.merge(s21_set_int_ref);
+    s21_set_int_res.merge(s21_set_int_ref);
   
-//     EXPECT_EQ(s21_set_int_res.size(), 6U);
-//   }
+    EXPECT_EQ(s21_set_int_res.size(), 6U);
+  }
   
   TEST(set_merge, case5) {
     AVLTree<int> s21_set_int_ref = {9, 23, 98, 1};
@@ -2489,8 +2501,46 @@ TEST(set_constructor, case1) {
     EXPECT_EQ(s21_set_int_ref.size(), 4U);
   }
   
-  int main(int argc, char **argv) {
-      testing::InitGoogleTest(&argc, argv);
+//   int main(int argc, char **argv) {
+int main(){
+    // AVLTree<int> s21_set_int_ref{9, 23, 98};
+    // AVLTree<int> s21_set_int_res{78, 88, 108};
+  
+    // s21_set_int_res.merge(s21_set_int_ref);
+
+    AVLTree<int> s21_set_int_ref = {9, 23, 98, 1};
+    AVLTree<int> s21_set_int_res = {8, 32};
     
-      return RUN_ALL_TESTS();
+  
+    s21_set_int_res.merge(s21_set_int_ref);    
+    // AVLTree<double> s21_set = {22.2, 44.48, 12.4457, 6.84, 1.44};
+    // s21_set.dump4(s21_set.root);
+    // s21_set_int_res.dump4(s21_set_int_res.root);
+    // auto it = s21_set.begin();
+    // ++it;
+    // ++it;
+    // ++it;
+    // ++it;
+    // std::cout << *it << " it " << std::endl;
+    // s21_set.erase(it);
+    // it = s21_set.begin();
+    // s21_set.erase(it);
+    // it = s21_set.begin();
+    // s21_set.erase(it);
+    // it = s21_set.begin();
+    // s21_set.erase(it);
+    // it = s21_set.begin();
+    // s21_set.erase(it);
+    // ++it;
+    // ++it;
+    // ++it;
+
+    // s21_set.dump4(s21_set.root);
+
+    return 0;
+
+    //   testing::InitGoogleTest(&argc, argv);
+    
+    //   return RUN_ALL_TESTS();
+
     }
